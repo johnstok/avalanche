@@ -19,25 +19,23 @@
  *---------------------------------------------------------------------------*/
 package com.johnstok.avalanche.workload;
 
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
+import com.johnstok.avalanche.Callback;
 import com.johnstok.avalanche.Generator;
 import com.johnstok.avalanche.GeneratorRunnable;
-import com.johnstok.avalanche.NoOpCallback;
 import com.johnstok.avalanche.Workload;
 
 public class FixedRateWorkload implements Workload {
 
-    final int _conns;
-    final long _period;
-    final TimeUnit _unit;
+    private final int _conns;
+    private final long _period;
+    private final TimeUnit _unit;
+    private final CountDownLatch _stopLatch;
 
 
     public FixedRateWorkload(final int i,
@@ -46,12 +44,13 @@ public class FixedRateWorkload implements Workload {
         _conns = i;
         _period = period;
         _unit = unit;
+        _stopLatch = new CountDownLatch(i);
     }
 
 
     /** {@inheritDoc} */
-    @Override
     public Future<Void> execute(final Generator<Void> command) {
+        final CountDownCallback cdc = new CountDownCallback();
 
         // This executor runs exactly n times.
         final ScheduledExecutorService workloadGenerator =
@@ -68,54 +67,20 @@ public class FixedRateWorkload implements Workload {
                 }
             };
 
-        // FIXME: This future can return before all requests have completed - use a CDL.
-        final ScheduledFuture<?> f =
-            workloadGenerator.scheduleAtFixedRate(
-                new GeneratorRunnable<>(
-                    command, new NoOpCallback()), 0, _period, _unit);
+        workloadGenerator.scheduleAtFixedRate(
+            new GeneratorRunnable<Void>(command, cdc), 0, _period, _unit);
 
-        return
-            new Future<Void> () {
+        return new LatchFuture(_stopLatch); // FIXME: This future can't be cancelled.
+    }
 
-                @Override
-                public boolean cancel(final boolean mayInterruptIfRunning) {
-                    return f.cancel(mayInterruptIfRunning);
-                }
 
-                @Override
-                public boolean isCancelled() {
-                    return f.isCancelled();
-                }
+    final class CountDownCallback
+        implements
+            Callback {
 
-                @Override
-                public boolean isDone() {
-                    return f.isDone();
-                }
-
-                @Override
-                public Void get() throws InterruptedException,
-                                         ExecutionException {
-                    try {
-                        f.get();
-                    } catch (CancellationException e) {
-                        /* No Op */
-                    }
-                    return null;
-                }
-
-                @Override
-                public Void get(final long timeout,
-                                final TimeUnit unit) throws InterruptedException,
-                                                            ExecutionException,
-                                                            TimeoutException {
-                    try {
-                        f.get(timeout, unit);
-                    } catch (CancellationException e) {
-                        /* No Op */
-                    }
-                    return null;
-                }
-
-            };
+        /** {@inheritDoc} */
+        public void onComplete() {
+            _stopLatch.countDown();
+        }
     }
 }

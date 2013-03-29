@@ -13,6 +13,10 @@
             <id>johnstok</id>
             <url>http://www.iamjohnstok.com/maven2</url>
         </repository>
+        <repository>
+            <id>jboss</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+        </repository>
     </repositories>
 
     <artifactId>avalanche</artifactId>
@@ -29,11 +33,6 @@
             <artifactId>metrics-core</artifactId>
             <version>2.2.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.johnstok</groupId>
-            <artifactId>http</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -43,8 +42,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.5</source>
+                    <target>1.5</target>
                     <encoding>UTF-8</encoding>
                     <compilerArgument>-Xlint</compilerArgument>
                 </configuration>

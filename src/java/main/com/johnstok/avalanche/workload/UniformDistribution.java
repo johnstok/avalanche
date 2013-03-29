@@ -51,7 +51,6 @@ public class UniformDistribution
 
 
     /** {@inheritDoc} */
-    @Override
     public int next() {
         return _min+r.nextInt(_size);
     }

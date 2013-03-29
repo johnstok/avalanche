@@ -20,12 +20,9 @@
 package com.johnstok.avalanche.workload;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import com.johnstok.avalanche.Callback;
 import com.johnstok.avalanche.Generator;
@@ -51,11 +48,9 @@ public class ClosedWorkload implements Workload {
 
 
     /** {@inheritDoc} */
-    @Override
     public Future<Void> execute(final Generator<Void> command) {
         final CCallback cc = new CCallback();
-        Runnable r = new Runnable() {
-            @Override
+        final Runnable r = new Runnable() {
             public void run() {
                 for (int i=0; i<conns; i++) {
                     try {
@@ -70,66 +65,10 @@ public class ClosedWorkload implements Workload {
             }
         };
 
-        FutureTask<Void> workloadTask = new FutureTask<Void>(r, (Void) null);
+        final FutureTask<Void> workloadTask = new FutureTask<Void>(r, (Void) null);
         new Thread(workloadTask, "Closed Workload Thread").start();
 
-        return new LatchFuture(_stopLatch); // FIXME: Can't be cancelled.
-    }
-
-
-    private static class LatchFuture implements Future<Void> {
-
-        private final CountDownLatch _latch;
-
-
-        /**
-         * Constructor.
-         *
-         * @param latch
-         */
-        public LatchFuture(final CountDownLatch latch) {
-            _latch = latch; // FIXME: Check for null.
-        }
-
-
-        /** {@inheritDoc} */
-        @Override
-        public boolean cancel(final boolean mayInterruptIfRunning) {
-            throw new UnsupportedOperationException("Method not implemented.");
-        }
-
-
-        /** {@inheritDoc} */
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-
-        /** {@inheritDoc} */
-        @Override
-        public boolean isDone() {
-            return 0==_latch.getCount();
-        }
-
-
-        /** {@inheritDoc} */
-        @Override
-        public Void get() throws InterruptedException, ExecutionException {
-            _latch.await();
-            return null;
-        }
-
-
-        /** {@inheritDoc} */
-        @Override
-        public Void get(final long timeout, final TimeUnit unit)
-            throws InterruptedException,
-                ExecutionException,
-                TimeoutException {
-            if (_latch.await(timeout, unit)) { return null; }
-            throw new TimeoutException();
-        }
+        return new LatchFuture(_stopLatch); // FIXME: This future can't be cancelled.
     }
 
 
@@ -140,7 +79,6 @@ public class ClosedWorkload implements Workload {
         AtomicLong i = new AtomicLong();
 
         /** {@inheritDoc} */
-        @Override
         public void onComplete() {
             _permits.release();
             _stopLatch.countDown();

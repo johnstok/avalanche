@@ -30,6 +30,5 @@ public class NoOpCallback
         Callback {
 
     /** {@inheritDoc} */
-    @Override
     public void onComplete() { /* No Op. */ }
 }
