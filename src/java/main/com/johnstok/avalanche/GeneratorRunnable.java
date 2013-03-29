@@ -41,9 +41,12 @@ public class GeneratorRunnable<T> implements Runnable {
 
 
     /** {@inheritDoc} */
-    @Override
     public void run() {
-        _generator.generate(_callback);
+        try {
+            _generator.generate(_callback);
+        } catch (final RuntimeException e) {
+            e.printStackTrace(); // FIXME: Handle correctly.
+        }
     }
 
 }
