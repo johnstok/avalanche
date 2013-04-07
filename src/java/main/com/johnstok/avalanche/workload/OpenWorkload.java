@@ -52,6 +52,8 @@ public class OpenWorkload
      * @param distribution The distribution of delays between each execution, in milliseconds.
      */
     public OpenWorkload(final int i, final Distribution distribution) {
+        // FIXME: The distribution of delays will be correct at the scope of
+        // this class - not the scope of each call to execute().
         _conns = i;
         _distribution = distribution;
     }
