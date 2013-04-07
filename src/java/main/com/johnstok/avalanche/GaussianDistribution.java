@@ -17,22 +17,45 @@
  * You should have received a copy of the GNU General Public License
  * along with avalanche. If not, see <http://www.gnu.org/licenses/>.
  *---------------------------------------------------------------------------*/
-package com.johnstok.avalanche.workload;
+package com.johnstok.avalanche;
+
+import java.util.Random;
 
 
 /**
- * A statistical distribution.
+ * A Gaussian distribution.
  *
- * <p>Implementations of this class MUST be thread safe.
+ * http://en.wikipedia.org/wiki/Normal_distribution
  *
  * @author Keith Webster Johnston.
  */
-public interface Distribution {
+public class GaussianDistribution
+    implements
+        Distribution {
+
+    private final Random r = new Random(System.nanoTime());
+
+    private final int _mean;
+    private final int _deviation;
+
 
     /**
-     * Retrieve the next randomly selected value in the distribution.
+     * Constructor.
      *
-     * @return The value as an integer.
+     * <p>Note that if values less than 0 will be coerced to 0.
+     *
+     * @param mean      The mean value in the distribution.
+     * @param deviation The standard deviation of the distribution.
      */
-    int next();
+    public GaussianDistribution(final int mean, final int deviation) {
+        _mean  = mean;          // FIXME: Validate >=0
+        _deviation = deviation; // FIXME: Validate >=0
+    }
+
+
+    /** {@inheritDoc} */
+    public int next() {
+        int next = _mean+(int)(_deviation*r.nextGaussian());
+        return next>=0 ? next : 0;
+    }
 }

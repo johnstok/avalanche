@@ -17,41 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with avalanche. If not, see <http://www.gnu.org/licenses/>.
  *---------------------------------------------------------------------------*/
-package com.johnstok.avalanche.workload;
-
-import java.util.Random;
+package com.johnstok.avalanche;
 
 
 /**
- * A distribution in which each integer is equally likely to occur.
+ * A statistical distribution.
+ *
+ * <p>Implementations of this class MUST be thread safe.
  *
  * @author Keith Webster Johnston.
  */
-public class UniformDistribution
-    implements
-        Distribution {
-
-    private final Random r = new Random(System.nanoTime());
-
-    private final int _min;
-    private final int _size;
-
+public interface Distribution {
 
     /**
-     * Constructor.
+     * Retrieve the next randomly selected value in the distribution.
      *
-     * @param min  The minimum value in the distribution.
-     * @param size The number of integers in the range.
+     * @return The value as an integer.
      */
-    public UniformDistribution(final int min, final int size) {
-        _min  = min;  // FIXME: Validate >=0
-        _size = size; // FIXME: Validate >=0
-    }
-
-
-
-    /** {@inheritDoc} */
-    public int next() {
-        return _min+r.nextInt(_size);
-    }
+    int next();
 }

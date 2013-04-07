@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
+import com.johnstok.avalanche.Distribution;
 import com.johnstok.avalanche.Generator;
 import com.johnstok.avalanche.Workload;
 
