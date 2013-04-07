@@ -19,20 +19,28 @@
  *---------------------------------------------------------------------------*/
 package com.johnstok.avalanche.workload;
 
+import java.util.concurrent.CountDownLatch;
+import com.johnstok.avalanche.Callback;
 
-/**
- * A statistical distribution.
- *
- * <p>Implementations of this class MUST be thread safe.
- *
- * @author Keith Webster Johnston.
- */
-public interface Distribution {
+final class CountDownCallback
+    implements
+        Callback {
+
+    private final CountDownLatch _stopLatch;
+
 
     /**
-     * Retrieve the next randomly selected value in the distribution.
+     * Constructor.
      *
-     * @return The value as an integer.
+     * @param stopLatch The latch managed by this callback.
      */
-    int next();
+    public CountDownCallback(final CountDownLatch stopLatch) {
+        _stopLatch = stopLatch;
+    }
+
+
+    /** {@inheritDoc} */
+    public void onComplete() {
+        _stopLatch.countDown();
+    }
 }
