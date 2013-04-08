@@ -1,10 +1,5 @@
-Alternative workloads (See httperf, --period argument)
- - exponential (poisson) (see http://stackoverflow.com/a/753802/27929)
- - continuous uniform, i.e. all intervals of the same length on the distribution's support are equally probable – over the interval [T1,T2) (see Random#nextDouble())
- - gaussian interval (see Random#nextGaussian())
- - Pareto
- 
- http://introcs.cs.princeton.edu/java/22library/StdRandom.java.html
+Alternative distributions (See httperf, --period argument)
+ - http://introcs.cs.princeton.edu/java/22library/StdRandom.java.html
 
 N.B. the above can be both open and closed
 
