@@ -49,6 +49,7 @@ public class ClosedWorkload implements Workload {
 
     /** {@inheritDoc} */
     public Future<Void> execute(final Generator<Void> command) {
+        // TODO: Refactor to return collection of Futures for each task?
         final CCallback cc = new CCallback();
         final Runnable r = new Runnable() {
             public void run() {
@@ -58,8 +59,13 @@ public class ClosedWorkload implements Workload {
                         command.generate(cc);
                     } catch (final InterruptedException e) {
                         Thread.currentThread().interrupt();
+                        e.printStackTrace();
                         break;
                         // FIXME: Breaking here means the future's latch will never count down to 0.
+                    } catch (final RuntimeException e) {
+                        e.printStackTrace();
+                        throw e;
+                        // FIXME: Exiting here means the future's latch will never count down to 0.
                     }
                 }
             }
@@ -82,7 +88,7 @@ public class ClosedWorkload implements Workload {
         public void onComplete() {
             _permits.release();
             _stopLatch.countDown();
-            System.out.println(_stopLatch.getCount());
+//            System.out.println(_stopLatch.getCount());
         }
     }
 }
